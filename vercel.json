@@ -9,7 +9,7 @@
   "routes": [
     {
       "src": "/api/(.*)",
-      "dest": "https://your-backend-url.onrender.com/api/$1"
+      "dest": "https://qr-based-attendance.onrender.com/api/$1"
     },
     {
       "src": "/(.*)",
@@ -17,6 +17,6 @@
     }
   ],
   "env": {
-    "REACT_APP_API_URL": "https://your-backend-url.onrender.com"
+    "REACT_APP_API_URL": "https://qr-based-attendance.onrender.com"
   }
 }
