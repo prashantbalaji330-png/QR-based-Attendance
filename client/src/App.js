@@ -14,11 +14,14 @@ import LoadingSpinner from './components/LoadingSpinner';
 const App = () => {
   const { isAuthenticated, loading, user } = useAuth();
 
+  console.log('App - Auth State:', { isAuthenticated, loading, user: user?.name, role: user?.role });
+
   if (loading) {
     return <LoadingSpinner />;
   }
 
   if (!isAuthenticated) {
+    console.log('App - Not authenticated, showing login routes');
     return (
       <div className="container">
         <Routes>

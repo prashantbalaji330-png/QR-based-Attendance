@@ -10,7 +10,7 @@ const router = express.Router();
 // @access  Private (Students only)
 router.post('/mark', protect, authorize('student'), async (req, res) => {
   try {
-    const { qrCodeId } = req.body;
+    const { qrCodeId, coordinates } = req.body;
 
     if (!qrCodeId) {
       return res.status(400).json({
@@ -64,7 +64,8 @@ router.post('/mark', protect, authorize('student'), async (req, res) => {
       teacher: qrCode.generatedBy,
       status,
       location: qrCode.location,
-      course: qrCode.course
+      course: qrCode.course,
+      coordinates: coordinates || { latitude: null, longitude: null }
     });
 
     // Populate the attendance record
@@ -152,8 +153,8 @@ router.get('/range', protect, authorize('teacher'), async (req, res) => {
     }
 
     const attendance = await Attendance.find(query)
-      .populate('student', 'name studentId department year')
-      .populate('qrCode', 'code generatedAt')
+      .populate('student', 'name studentId department year mobileNumber')
+      .populate('qrCode', 'code generatedAt description')
       .sort({ date: -1, markedAt: 1 });
 
     res.json({
@@ -346,8 +347,8 @@ router.get('/export', protect, authorize('teacher'), async (req, res) => {
       date: { $gte: start, $lte: end },
       teacher: req.user._id,
       isDeleted: false
-    }).populate('student', 'name studentId department year')
-      .populate('qrCode', 'code generatedAt')
+    }).populate('student', 'name studentId department year mobileNumber')
+      .populate('qrCode', 'code generatedAt description')
       .sort({ date: 1, markedAt: 1 });
 
     // Convert to CSV format
@@ -357,6 +358,7 @@ router.get('/export', protect, authorize('teacher'), async (req, res) => {
       'Student ID': record.student.studentId,
       Department: record.student.department,
       Year: record.student.year,
+      'Mobile Number': record.student.mobileNumber,
       Status: record.status,
       'Marked At': record.markedAt.toISOString(),
       Location: record.location,

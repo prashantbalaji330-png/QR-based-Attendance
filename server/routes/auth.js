@@ -20,14 +20,23 @@ const generateToken = (id) => {
 // @access  Public
 router.post('/register', async (req, res) => {
   try {
-    const { name, email, password, role, studentId, department, year } = req.body;
+    const { name, email, mobileNumber, password, role, studentId, department, year } = req.body;
 
-    // Check if user already exists
+    // Check if user already exists with email
     const userExists = await User.findOne({ email });
     if (userExists) {
       return res.status(400).json({
         error: 'User already exists',
         message: 'A user with this email already exists'
+      });
+    }
+
+    // Check if user already exists with mobile number
+    const mobileExists = await User.findOne({ mobileNumber });
+    if (mobileExists) {
+      return res.status(400).json({
+        error: 'Mobile number already exists',
+        message: 'A user with this mobile number already exists'
       });
     }
 
@@ -46,6 +55,7 @@ router.post('/register', async (req, res) => {
     const user = await User.create({
       name,
       email,
+      mobileNumber,
       password,
       role,
       studentId,
@@ -60,6 +70,7 @@ router.post('/register', async (req, res) => {
           _id: user._id,
           name: user.name,
           email: user.email,
+          mobileNumber: user.mobileNumber,
           role: user.role,
           studentId: user.studentId,
           department: user.department,
@@ -126,6 +137,7 @@ router.post('/login', async (req, res) => {
         _id: user._id,
         name: user.name,
         email: user.email,
+        mobileNumber: user.mobileNumber,
         role: user.role,
         studentId: user.studentId,
         department: user.department,
@@ -166,7 +178,7 @@ router.get('/me', protect, async (req, res) => {
 // @access  Private
 router.put('/me', protect, async (req, res) => {
   try {
-    const { name, email, department, year } = req.body;
+    const { name, email, mobileNumber, department, year } = req.body;
     
     const user = await User.findById(req.user._id);
     
@@ -177,9 +189,21 @@ router.put('/me', protect, async (req, res) => {
       });
     }
 
+    // Check if mobile number is being updated and if it already exists
+    if (mobileNumber && mobileNumber !== user.mobileNumber) {
+      const mobileExists = await User.findOne({ mobileNumber, _id: { $ne: user._id } });
+      if (mobileExists) {
+        return res.status(400).json({
+          error: 'Mobile number already exists',
+          message: 'A user with this mobile number already exists'
+        });
+      }
+    }
+
     // Update fields
     if (name) user.name = name;
     if (email) user.email = email;
+    if (mobileNumber) user.mobileNumber = mobileNumber;
     if (department) user.department = department;
     if (year) user.year = year;
 
@@ -248,7 +272,7 @@ router.get('/students', protect, authorize('teacher'), async (req, res) => {
     const students = await User.find({ 
       role: 'student',
       isActive: true 
-    }).select('name studentId department year email');
+    }).select('name studentId department year email mobileNumber');
     
     res.json({
       success: true,

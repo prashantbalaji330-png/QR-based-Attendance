@@ -28,7 +28,18 @@ const Login = () => {
     try {
       const result = await login(formData.email, formData.password);
       if (result.success) {
-        navigate('/');
+        console.log('Login successful, navigating...');
+        console.log('User data:', result.user);
+        
+        // Navigate based on user role
+        const userRole = result.user?.role;
+        if (userRole === 'teacher') {
+          navigate('/teacher');
+        } else if (userRole === 'student') {
+          navigate('/student');
+        } else {
+          navigate('/');
+        }
       }
     } catch (error) {
       console.error('Login error:', error);

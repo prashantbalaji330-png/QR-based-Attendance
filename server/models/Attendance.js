@@ -30,6 +30,16 @@ const attendanceSchema = new mongoose.Schema({
     type: String,
     default: 'Classroom'
   },
+  coordinates: {
+    latitude: {
+      type: Number,
+      default: null
+    },
+    longitude: {
+      type: Number,
+      default: null
+    }
+  },
   course: {
     type: String,
     default: 'General'
@@ -80,8 +90,8 @@ attendanceSchema.statics.getDailyAttendance = function(date, teacherId) {
     date: { $gte: startOfDay, $lte: endOfDay },
     teacher: teacherId,
     isDeleted: false
-  }).populate('student', 'name studentId department year')
-    .populate('qrCode', 'code generatedAt expiresAt')
+  }).populate('student', 'name studentId department year mobileNumber')
+    .populate('qrCode', 'code generatedAt expiresAt description')
     .sort({ markedAt: 1 });
 };
 

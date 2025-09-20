@@ -1,12 +1,13 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
-import { FaUser, FaEnvelope, FaLock, FaEye, FaEyeSlash, FaIdCard, FaGraduationCap } from 'react-icons/fa';
+import { FaUser, FaEnvelope, FaLock, FaEye, FaEyeSlash, FaIdCard, FaGraduationCap, FaPhone } from 'react-icons/fa';
 
 const Register = () => {
   const [formData, setFormData] = useState({
     name: '',
     email: '',
+    mobileNumber: '',
     password: '',
     confirmPassword: '',
     role: 'student',
@@ -46,10 +47,19 @@ const Register = () => {
       return;
     }
 
+    // Validate mobile number format
+    const mobileRegex = /^[0-9]{10}$/;
+    if (formData.mobileNumber && !mobileRegex.test(formData.mobileNumber)) {
+      alert('Mobile number must be exactly 10 digits');
+      setLoading(false);
+      return;
+    }
+
     try {
       const userData = {
         name: formData.name,
         email: formData.email,
+        mobileNumber: formData.mobileNumber,
         password: formData.password,
         role: formData.role
       };
@@ -141,6 +151,28 @@ const Register = () => {
                       placeholder="Enter your email"
                     />
                   </div>
+                </div>
+              </div>
+
+              <div className="mb-3">
+                <label htmlFor="mobileNumber" className="form-label">
+                  Mobile Number
+                </label>
+                <div className="input-group">
+                  <span className="input-group-text">
+                    <FaPhone />
+                  </span>
+                  <input
+                    type="tel"
+                    className="form-control"
+                    id="mobileNumber"
+                    name="mobileNumber"
+                    value={formData.mobileNumber}
+                    onChange={handleChange}
+                    required
+                    placeholder="Enter your 10-digit mobile number"
+                    maxLength="10"
+                  />
                 </div>
               </div>
 

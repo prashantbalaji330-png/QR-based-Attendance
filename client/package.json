@@ -11,6 +11,7 @@
     "chart.js": "^4.2.1",
     "date-fns": "^2.29.3",
     "html5-qrcode": "^2.3.8",
+    "http-proxy-middleware": "^3.0.5",
     "qrcode.react": "^3.1.0",
     "react": "^18.2.0",
     "react-bootstrap": "^2.7.2",

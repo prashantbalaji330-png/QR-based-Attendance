@@ -3,7 +3,7 @@ const mongoose = require('mongoose');
 const cors = require('cors');
 const helmet = require('helmet');
 const rateLimit = require('express-rate-limit');
-require('dotenv').config({ path: './config.env' });
+require('dotenv').config();
 
 const authRoutes = require('./routes/auth');
 const qrRoutes = require('./routes/qr');
@@ -15,7 +15,7 @@ app.set('trust proxy', 1);
 app.use(helmet());
 app.use(cors({
   origin: process.env.NODE_ENV === 'production' 
-    ? ['https://yourdomain.com'] 
+    ? [process.env.FRONTEND_URL] 
     : ['http://localhost:3000'],
   credentials: true
 }));

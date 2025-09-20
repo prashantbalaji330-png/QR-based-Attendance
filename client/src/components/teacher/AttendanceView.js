@@ -147,6 +147,7 @@ const AttendanceView = () => {
                         <th>Student ID</th>
                         <th>Department</th>
                         <th>Year</th>
+                        <th>Mobile Number</th>
                         <th>Status</th>
                         <th>Time</th>
                         <th>Actions</th>
@@ -161,6 +162,7 @@ const AttendanceView = () => {
                           <td>{record.student.studentId}</td>
                           <td>{record.student.department}</td>
                           <td>{record.student.year}</td>
+                          <td>{record.student.mobileNumber}</td>
                           <td>
                             <span className={`status-badge status-${record.status}`}>
                               {record.status}

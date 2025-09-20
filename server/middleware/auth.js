@@ -4,17 +4,14 @@ const User = require('../models/User');
 // Protect routes - require authentication
 const protect = async (req, res, next) => {
   try {
-    console.log('Auth middleware - headers:', req.headers);
     let token;
 
     // Check for token in headers
     if (req.headers.authorization && req.headers.authorization.startsWith('Bearer')) {
       token = req.headers.authorization.split(' ')[1];
-      console.log('Token found:', token ? 'Yes' : 'No');
     }
 
     if (!token) {
-      console.log('No token provided');
       return res.status(401).json({ 
         error: 'Not authorized to access this route',
         message: 'No token provided'
@@ -23,11 +20,9 @@ const protect = async (req, res, next) => {
 
     // Verify token
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    console.log('Token decoded:', decoded);
     
     // Get user from token
     const user = await User.findById(decoded.id).select('-password');
-    console.log('User found:', user ? 'Yes' : 'No', user ? user.role : 'N/A');
     
     if (!user) {
       return res.status(401).json({ 

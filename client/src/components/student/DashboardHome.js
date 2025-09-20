@@ -151,10 +151,12 @@ const DashboardHome = () => {
                 <div className="col-md-6">
                   <p><strong>Name:</strong> {user?.name}</p>
                   <p><strong>Student ID:</strong> {user?.studentId}</p>
+                  <p><strong>Email:</strong> {user?.email}</p>
                 </div>
                 <div className="col-md-6">
                   <p><strong>Department:</strong> {user?.department}</p>
                   <p><strong>Year:</strong> {user?.year}</p>
+                  <p><strong>Mobile Number:</strong> {user?.mobileNumber}</p>
                 </div>
               </div>
             </div>

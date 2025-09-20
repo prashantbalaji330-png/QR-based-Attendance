@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useAuth } from '../contexts/AuthContext';
-import { FaUser, FaEnvelope, FaIdCard, FaGraduationCap, FaLock } from 'react-icons/fa';
+import { FaUser, FaEnvelope, FaIdCard, FaGraduationCap, FaLock, FaPhone } from 'react-icons/fa';
 
 const Profile = () => {
   const { user, updateProfile, changePassword } = useAuth();
@@ -8,6 +8,7 @@ const Profile = () => {
   const [profileData, setProfileData] = useState({
     name: user?.name || '',
     email: user?.email || '',
+    mobileNumber: user?.mobileNumber || '',
     department: user?.department || '',
     year: user?.year || 1
   });
@@ -42,6 +43,7 @@ const Profile = () => {
         setProfileData({
           name: user?.name || '',
           email: user?.email || '',
+          mobileNumber: user?.mobileNumber || '',
           department: user?.department || '',
           year: user?.year || 1
         });
@@ -166,6 +168,28 @@ const Profile = () => {
                       </div>
                     </div>
 
+                    <div className="mb-3">
+                      <label htmlFor="mobileNumber" className="form-label">
+                        Mobile Number
+                      </label>
+                      <div className="input-group">
+                        <span className="input-group-text">
+                          <FaPhone />
+                        </span>
+                        <input
+                          type="tel"
+                          className="form-control"
+                          id="mobileNumber"
+                          name="mobileNumber"
+                          value={profileData.mobileNumber}
+                          onChange={handleProfileChange}
+                          required
+                          placeholder="Enter your 10-digit mobile number"
+                          maxLength="10"
+                        />
+                      </div>
+                    </div>
+
                     {user?.role === 'student' && (
                       <>
                         <div className="row">
@@ -223,9 +247,7 @@ const Profile = () => {
                           >
                             <option value={1}>1st Year</option>
                             <option value={2}>2nd Year</option>
-                            <option value={3}>3rd Year</option>
-                            <option value={4}>4th Year</option>
-                            <option value={5}>5th Year</option>
+                            
                           </select>
                         </div>
                       </>

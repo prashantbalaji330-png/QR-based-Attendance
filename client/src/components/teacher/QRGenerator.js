@@ -2,8 +2,10 @@ import React, { useState } from 'react';
 import axios from 'axios';
 import { toast } from 'react-toastify';
 import { FaQrcode, FaCopy, FaDownload, FaClock } from 'react-icons/fa';
+import { useAuth } from '../../contexts/AuthContext';
 
 const QRGenerator = () => {
+  const { user, isAuthenticated, token } = useAuth();
   const [formData, setFormData] = useState({
     description: '',
     location: '',
@@ -24,11 +26,30 @@ const QRGenerator = () => {
     e.preventDefault();
     setLoading(true);
 
+    // Check authentication
+    if (!isAuthenticated || !token) {
+      toast.error('You must be logged in to generate QR codes');
+      setLoading(false);
+      return;
+    }
+
+    // Check if user is a teacher
+    if (user?.role !== 'teacher') {
+      toast.error('Only teachers can generate QR codes');
+      setLoading(false);
+      return;
+    }
+
+    console.log('Generating QR code with token:', token ? 'Present' : 'Missing');
+    console.log('User:', user);
+    console.log('Axios headers:', axios.defaults.headers.common);
+
     try {
       const response = await axios.post('/api/qr/generate', formData);
       setGeneratedQR(response.data.data);
       toast.success('QR Code generated successfully!');
     } catch (error) {
+      console.error('QR generation error:', error);
       const message = error.response?.data?.message || 'Failed to generate QR code';
       toast.error(message);
     } finally {
@@ -63,6 +84,42 @@ const QRGenerator = () => {
       img.src = generatedQR.qrCodeImage;
     }
   };
+
+  // Debug authentication state
+  console.log('QR Generator - Auth State:', {
+    isAuthenticated,
+    user,
+    token: token ? 'Present' : 'Missing',
+    userRole: user?.role
+  });
+
+  // Show loading if authentication is still being checked
+  if (!isAuthenticated && !user) {
+    return (
+      <div className="loading-spinner">
+        <div className="spinner-border" role="status">
+          <span className="visually-hidden">Loading...</span>
+        </div>
+        <p className="mt-2 text-white">Checking authentication...</p>
+      </div>
+    );
+  }
+
+  // Show error if user is not a teacher
+  if (user && user.role !== 'teacher') {
+    return (
+      <div className="row justify-content-center">
+        <div className="col-md-6">
+          <div className="card">
+            <div className="card-body text-center">
+              <h3 className="text-danger">Access Denied</h3>
+              <p>Only teachers can generate QR codes.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div>
@@ -111,7 +168,7 @@ const QRGenerator = () => {
 
                 <div className="mb-3">
                   <label htmlFor="course" className="form-label">
-                    Course
+                    Course/Subject
                   </label>
                   <input
                     type="text"
@@ -234,7 +291,7 @@ const QRGenerator = () => {
                     <p><strong>Location:</strong> {generatedQR.location}</p>
                   </div>
                   <div className="col-md-6">
-                    <p><strong>Course:</strong> {generatedQR.course}</p>
+                    <p><strong>Course/Subject:</strong> {generatedQR.course}</p>
                     <p><strong>Generated:</strong> {new Date(generatedQR.generatedAt).toLocaleString()}</p>
                   </div>
                 </div>

@@ -34,19 +34,50 @@ const QRScanner = () => {
     toast.error('Error scanning QR code');
   };
 
+  const getCurrentLocation = () => {
+    return new Promise((resolve, reject) => {
+      if (!navigator.geolocation) {
+        resolve({ latitude: null, longitude: null });
+        return;
+      }
+
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          resolve({
+            latitude: position.coords.latitude,
+            longitude: position.coords.longitude
+          });
+        },
+        (error) => {
+          console.warn('Location access denied or unavailable:', error);
+          resolve({ latitude: null, longitude: null });
+        },
+        {
+          enableHighAccuracy: true,
+          timeout: 10000,
+          maximumAge: 60000
+        }
+      );
+    });
+  };
+
   const validateAndMarkAttendance = async (qrCode) => {
     setLoading(true);
     
     try {
+      // Get current location coordinates
+      const coordinates = await getCurrentLocation();
+      
       // First validate the QR code
       const validateResponse = await axios.post('/api/qr/validate', {
         code: qrCode
       });
 
       if (validateResponse.data.success) {
-        // Mark attendance
+        // Mark attendance with coordinates
         const attendanceResponse = await axios.post('/api/attendance/mark', {
-          qrCodeId: validateResponse.data.data._id
+          qrCodeId: validateResponse.data.data._id,
+          coordinates
         });
 
         if (attendanceResponse.data.success) {

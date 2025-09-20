@@ -165,7 +165,9 @@ const DashboardHome = () => {
                     <thead>
                       <tr>
                         <th>Student</th>
-                        <th>Status</th>
+                        <th>Mobile Number</th>
+                        <th>Description</th>
+                        <th>Coordinates</th>
                         <th>Time</th>
                       </tr>
                     </thead>
@@ -177,10 +179,16 @@ const DashboardHome = () => {
                             <br />
                             <small className="text-muted">{record.student.studentId}</small>
                           </td>
+                          <td>{record.student.mobileNumber}</td>
+                          <td>{record.qrCode?.description || 'N/A'}</td>
                           <td>
-                            <span className={`status-badge status-${record.status}`}>
-                              {record.status}
-                            </span>
+                            {record.coordinates && record.coordinates.latitude && record.coordinates.longitude ? (
+                              <small className="text-muted">
+                                {record.coordinates.latitude.toFixed(6)}, {record.coordinates.longitude.toFixed(6)}
+                              </small>
+                            ) : (
+                              <small className="text-muted">N/A</small>
+                            )}
                           </td>
                           <td>
                             {new Date(record.markedAt).toLocaleTimeString()}

@@ -1,0 +1,22 @@
+{
+  "version": 2,
+  "builds": [
+    {
+      "src": "client/build/**/*",
+      "use": "@vercel/static"
+    }
+  ],
+  "routes": [
+    {
+      "src": "/api/(.*)",
+      "dest": "https://your-backend-url.onrender.com/api/$1"
+    },
+    {
+      "src": "/(.*)",
+      "dest": "client/build/$1"
+    }
+  ],
+  "env": {
+    "REACT_APP_API_URL": "https://your-backend-url.onrender.com"
+  }
+}

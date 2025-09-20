@@ -7,7 +7,7 @@ const AuthContext = createContext();
 const initialState = {
   user: null,
   token: localStorage.getItem('token'),
-  isAuthenticated: false,
+  isAuthenticated: false, // Always start as false, let checkAuth determine this
   loading: true,
   error: null
 };
@@ -76,28 +76,47 @@ export const AuthProvider = ({ children }) => {
     }
   }, [state.token]);
 
-  // Check if user is authenticated on app load
+  // Check if user is authenticated on app load only
   useEffect(() => {
     const checkAuth = async () => {
-      if (state.token) {
+      const token = localStorage.getItem('token');
+      console.log('AuthContext - Checking auth with token:', token ? 'Present' : 'Missing');
+      
+      if (token) {
         try {
+          // Set token in axios headers before making the request
+          axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+          console.log('AuthContext - Set axios header with token');
+          
           const response = await axios.get('/api/auth/me');
+          console.log('AuthContext - Auth check successful:', response.data.data);
+          
           dispatch({
             type: 'LOGIN_SUCCESS',
             payload: { data: response.data.data }
           });
         } catch (error) {
+          console.error('AuthContext - Auth check failed:', error);
+          // Clear everything on auth failure
+          delete axios.defaults.headers.common['Authorization'];
+          localStorage.removeItem('token');
           dispatch({ type: 'LOGOUT' });
         }
       } else {
+        console.log('AuthContext - No token found, setting loading to false');
+        // If no token, make sure we're not authenticated
         dispatch({ type: 'SET_LOADING', payload: false });
+        if (state.isAuthenticated) {
+          dispatch({ type: 'LOGOUT' });
+        }
       }
     };
 
     checkAuth();
-  }, [state.token]);
+  }, []); // Empty dependency array - only run on mount
 
   const login = async (email, password) => {
+    console.log('AuthContext - Starting login process');
     dispatch({ type: 'LOGIN_START' });
     
     try {
@@ -106,14 +125,29 @@ export const AuthProvider = ({ children }) => {
         password
       });
       
+      console.log('AuthContext - Login response:', response.data);
+      
+      // Set token immediately in axios headers and localStorage
+      const token = response.data.data.token;
+      const userData = response.data.data;
+      
+      console.log('AuthContext - Setting token:', token ? 'Present' : 'Missing');
+      console.log('AuthContext - User data:', userData);
+      
+      axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+      localStorage.setItem('token', token);
+      
+      // Dispatch success with user data (not the full response)
       dispatch({
         type: 'LOGIN_SUCCESS',
-        payload: response.data
+        payload: { data: userData }
       });
       
+      console.log('AuthContext - Login successful, user data:', userData);
       toast.success('Login successful!');
-      return { success: true };
+      return { success: true, user: userData };
     } catch (error) {
+      console.error('AuthContext - Login failed:', error);
       const message = error.response?.data?.message || 'Login failed';
       dispatch({
         type: 'LOGIN_FAILURE',
@@ -129,6 +163,11 @@ export const AuthProvider = ({ children }) => {
     
     try {
       const response = await axios.post('/api/auth/register', userData);
+      
+      // Set token immediately in axios headers
+      const token = response.data.data.token;
+      axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+      localStorage.setItem('token', token);
       
       dispatch({
         type: 'LOGIN_SUCCESS',
@@ -149,8 +188,24 @@ export const AuthProvider = ({ children }) => {
   };
 
   const logout = () => {
+    // Clear everything
+    delete axios.defaults.headers.common['Authorization'];
+    localStorage.removeItem('token');
     dispatch({ type: 'LOGOUT' });
     toast.info('Logged out successfully');
+  };
+
+  const clearAuthState = () => {
+    console.log('AuthContext - Clearing corrupted auth state');
+    delete axios.defaults.headers.common['Authorization'];
+    localStorage.removeItem('token');
+    sessionStorage.clear();
+    dispatch({ type: 'LOGOUT' });
+    
+    // Force a page reload to clear any cached state
+    setTimeout(() => {
+      window.location.reload();
+    }, 100);
   };
 
   const updateProfile = async (profileData) => {
@@ -193,6 +248,7 @@ export const AuthProvider = ({ children }) => {
     login,
     register,
     logout,
+    clearAuthState,
     updateProfile,
     changePassword
   };
