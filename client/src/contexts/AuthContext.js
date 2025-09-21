@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useReducer, useEffect } from 'react';
 import axios from 'axios';
+import { API_BASE_URL } from '../config/api';
 import { toast } from 'react-toastify';
 
 const AuthContext = createContext();
@@ -120,7 +121,7 @@ export const AuthProvider = ({ children }) => {
     dispatch({ type: 'LOGIN_START' });
     
     try {
-      const response = await axios.post('/api/auth/login', {
+      const response = await axios.post(`${API_BASE_URL}/api/auth/login`, {
         email,
         password
       });
@@ -162,7 +163,7 @@ export const AuthProvider = ({ children }) => {
     dispatch({ type: 'LOGIN_START' });
     
     try {
-      const response = await axios.post('/api/auth/register', userData);
+      const response = await axios.post(`${API_BASE_URL}/api/auth/register`, userData);
       
       // Set token immediately in axios headers
       const token = response.data.data.token;
