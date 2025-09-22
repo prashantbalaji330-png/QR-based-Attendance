@@ -4,10 +4,12 @@ import axios from 'axios';
 import { toast } from 'react-toastify';
 import { FaQrcode, FaCheck, FaTimes, FaCamera, FaArrowLeft } from 'react-icons/fa';
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../../contexts/AuthContext';
 import { API_BASE_URL } from '../../config/api';
 
 const QRScanner = () => {
   const navigate = useNavigate();
+  const { logout } = useAuth();
   const [scanning, setScanning] = useState(true);
   const [result, setResult] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -184,10 +186,18 @@ const QRScanner = () => {
 
   return (
     <div>
-      <div className="row mb-4">
-        <div className="col-12">
-          <h2 className="fw-bold text-white">Scan QR Code</h2>
-          <p className="text-white-50">Scan the QR code to mark your attendance</p>
+      <div className="row mb-3 align-items-center">
+        <div className="col">
+          <h2 className="fw-bold text-white mb-0">Scan QR Code</h2>
+          <p className="text-white-50 mb-0">Scan the QR code to mark your attendance</p>
+        </div>
+        <div className="col-auto">
+          <button className="btn btn-outline-light me-2" onClick={() => navigate('/student')}>
+            <FaArrowLeft className="me-2" /> Dashboard
+          </button>
+          <button className="btn btn-danger" onClick={() => { logout(); navigate('/login'); }}>
+            <FaTimes className="me-2" /> Logout
+          </button>
         </div>
       </div>
 
