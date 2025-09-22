@@ -67,35 +67,7 @@ const DashboardHome = () => {
         </div>
       </div>
 
-      {/* Stats Cards */}
-      <div className="row mb-4">
-        <div className="col-md-3 mb-3">
-          <div className="stats-card">
-            <div className="stats-number">{stats.totalAttendance}</div>
-            <div className="stats-label">Total Sessions</div>
-          </div>
-        </div>
-        <div className="col-md-3 mb-3">
-          <div className="stats-card">
-            <div className="stats-number">{stats.presentDays}</div>
-            <div className="stats-label">Present Days</div>
-          </div>
-        </div>
-        <div className="col-md-3 mb-3">
-          <div className="stats-card">
-            <div className="stats-number">{stats.lateDays}</div>
-            <div className="stats-label">Late Days</div>
-          </div>
-        </div>
-        <div className="col-md-3 mb-3">
-          <div className="stats-card">
-            <div className="stats-number">{stats.attendanceRate}%</div>
-            <div className="stats-label">Attendance Rate</div>
-          </div>
-        </div>
-      </div>
-
-      {/* Quick Actions */}
+      {/* Quick Actions - moved above stats */}
       <div className="row mb-4">
         <div className="col-12">
           <div className="card">
@@ -137,6 +109,34 @@ const DashboardHome = () => {
                 </div>
               </div>
             </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Stats Cards */}
+      <div className="row mb-4">
+        <div className="col-md-3 mb-3">
+          <div className="stats-card">
+            <div className="stats-number">{stats.totalAttendance}</div>
+            <div className="stats-label">Total Sessions</div>
+          </div>
+        </div>
+        <div className="col-md-3 mb-3">
+          <div className="stats-card">
+            <div className="stats-number">{stats.presentDays}</div>
+            <div className="stats-label">Present Days</div>
+          </div>
+        </div>
+        <div className="col-md-3 mb-3">
+          <div className="stats-card">
+            <div className="stats-number">{stats.lateDays}</div>
+            <div className="stats-label">Late Days</div>
+          </div>
+        </div>
+        <div className="col-md-3 mb-3">
+          <div className="stats-card">
+            <div className="stats-number">{stats.attendanceRate}%</div>
+            <div className="stats-label">Attendance Rate</div>
           </div>
         </div>
       </div>
