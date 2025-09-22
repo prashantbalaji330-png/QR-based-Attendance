@@ -92,9 +92,10 @@ export const AuthProvider = ({ children }) => {
           const response = await axios.get('/api/auth/me');
           console.log('AuthContext - Auth check successful:', response.data.data);
           
+          // Preserve token so subsequent API calls include it
           dispatch({
             type: 'LOGIN_SUCCESS',
-            payload: { data: response.data.data }
+            payload: { data: { ...response.data.data, token } }
           });
         } catch (error) {
           console.error('AuthContext - Auth check failed:', error);
