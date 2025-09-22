@@ -1,11 +1,14 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Html5QrcodeScanner } from 'html5-qrcode';
+import { Html5Qrcode } from 'html5-qrcode';
 import axios from 'axios';
 import { toast } from 'react-toastify';
-import { FaQrcode, FaCheck, FaTimes, FaCamera } from 'react-icons/fa';
+import { FaQrcode, FaCheck, FaTimes, FaCamera, FaArrowLeft } from 'react-icons/fa';
+import { useNavigate } from 'react-router-dom';
+import { API_BASE_URL } from '../../config/api';
 
 const QRScanner = () => {
-  const [scanning, setScanning] = useState(false);
+  const navigate = useNavigate();
+  const [scanning, setScanning] = useState(true);
   const [result, setResult] = useState(null);
   const [loading, setLoading] = useState(false);
   const scannerRef = useRef(null);
@@ -13,7 +16,11 @@ const QRScanner = () => {
   useEffect(() => {
     return () => {
       if (scannerRef.current) {
-        scannerRef.current.clear();
+        try {
+          scannerRef.current.stop().then(() => {
+            scannerRef.current.clear();
+          }).catch(() => {});
+        } catch (e) {}
       }
     };
   }, []);
@@ -30,8 +37,27 @@ const QRScanner = () => {
   };
 
   const handleError = (err) => {
-    console.error(err);
-    toast.error('Error scanning QR code');
+    // html5-qrcode emits frequent non-fatal scan errors; throttle and only surface fatal cases
+    const errString = typeof err === 'string' ? err : (err?.message || '');
+    const fatalHints = [
+      'NotAllowedError', // permissions denied
+      'NotFoundError',   // no camera
+      'NotReadableError',
+      'OverconstrainedError',
+      'StreamApiNotSupportedError',
+      'InsecureContextError'
+    ];
+
+    if (fatalHints.some(h => errString.includes(h))) {
+      toast.error('Camera error: ' + (errString || 'permission or device issue'));
+      setScanning(false);
+      try {
+        scannerRef.current?.stop();
+      } catch (_) {}
+      return;
+    }
+
+    // Ignore non-fatal decode errors to avoid spamming the UI
   };
 
   const getCurrentLocation = () => {
@@ -68,17 +94,26 @@ const QRScanner = () => {
       // Get current location coordinates
       const coordinates = await getCurrentLocation();
       
+      const token = localStorage.getItem('token');
+      const authHeaders = token ? { Authorization: `Bearer ${token}` } : {};
+
       // First validate the QR code
-      const validateResponse = await axios.post('/api/qr/validate', {
-        code: qrCode
-      });
+      const validateResponse = await axios.post(
+        `${API_BASE_URL}/api/qr/validate`,
+        { code: qrCode },
+        { headers: authHeaders }
+      );
 
       if (validateResponse.data.success) {
         // Mark attendance with coordinates
-        const attendanceResponse = await axios.post('/api/attendance/mark', {
-          qrCodeId: validateResponse.data.data._id,
-          coordinates
-        });
+        const attendanceResponse = await axios.post(
+          `${API_BASE_URL}/api/attendance/mark`,
+          {
+            qrCodeId: validateResponse.data.data._id,
+            coordinates
+          },
+          { headers: authHeaders }
+        );
 
         if (attendanceResponse.data.success) {
           toast.success(attendanceResponse.data.message);
@@ -111,23 +146,41 @@ const QRScanner = () => {
     setResult(null);
     
     setTimeout(() => {
-      if (scannerRef.current) {
-        scannerRef.current.clear();
+      try {
+        if (scannerRef.current) {
+          scannerRef.current.stop().then(() => scannerRef.current.clear()).catch(() => {});
+        }
+        // Instantiate and start immediately on the back camera (environment)
+        scannerRef.current = new Html5Qrcode('qr-reader');
+        scannerRef.current.start(
+          { facingMode: { exact: 'environment' } },
+          { fps: 10, qrbox: { width: 250, height: 250 }, aspectRatio: 1.0 },
+          handleScan,
+          handleError
+        );
+      } catch (e) {
+        // Fallback to any available camera if exact environment is not available
+        try {
+          scannerRef.current = new Html5Qrcode('qr-reader');
+          scannerRef.current.start(
+            { facingMode: 'environment' },
+            { fps: 10, qrbox: { width: 250, height: 250 }, aspectRatio: 1.0 },
+            handleScan,
+            handleError
+          );
+        } catch (err) {
+          toast.error('Unable to access camera');
+          setScanning(false);
+        }
       }
-      
-      scannerRef.current = new Html5QrcodeScanner(
-        "qr-reader",
-        { 
-          fps: 10, 
-          qrbox: { width: 250, height: 250 },
-          aspectRatio: 1.0
-        },
-        false
-      );
-      
-      scannerRef.current.render(handleScan, handleError);
     }, 100);
   };
+
+  // Auto-start scanning when the page loads
+  useEffect(() => {
+    startScanner();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   return (
     <div>
@@ -164,17 +217,6 @@ const QRScanner = () => {
                     <div id="qr-reader"></div>
                   </div>
                   <p className="text-muted">Point your camera at the QR code</p>
-                  <button
-                    className="btn btn-secondary"
-                    onClick={() => {
-                      setScanning(false);
-                      if (scannerRef.current) {
-                        scannerRef.current.clear();
-                      }
-                    }}
-                  >
-                    Cancel
-                  </button>
                 </div>
               )}
 
@@ -193,23 +235,26 @@ const QRScanner = () => {
                   )}
                   
                   <div className="mt-3">
-                    <button
-                      className="btn btn-primary me-2"
-                      onClick={resetScanner}
-                      disabled={loading}
-                    >
-                      {loading ? (
-                        <>
-                          <span className="spinner-border spinner-border-sm me-2" />
-                          Processing...
-                        </>
-                      ) : (
-                        <>
-                          <FaQrcode className="me-2" />
-                          Scan Another
-                        </>
-                      )}
-                    </button>
+                    {result.success ? (
+                      <button className="btn btn-success" onClick={() => navigate('/student')}>
+                        <FaArrowLeft className="me-2" />
+                        Back to Dashboard
+                      </button>
+                    ) : (
+                      <button className="btn btn-primary" onClick={resetScanner} disabled={loading}>
+                        {loading ? (
+                          <>
+                            <span className="spinner-border spinner-border-sm me-2" />
+                            Processing...
+                          </>
+                        ) : (
+                          <>
+                            <FaQrcode className="me-2" />
+                            Scan Another
+                          </>
+                        )}
+                      </button>
+                    )}
                   </div>
                 </div>
               )}
