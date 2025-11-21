@@ -65,19 +65,6 @@ const DashboardHome = () => {
 
   return (
     <div>
-      {/* Mobile Logout Button */}
-      <div className="row mb-3 d-lg-none">
-        <div className="col-12">
-          <button
-            className="btn btn-danger w-100"
-            onClick={handleLogout}
-          >
-            <FaSignOutAlt className="me-2" />
-            Logout
-          </button>
-        </div>
-      </div>
-
       <div className="row mb-4">
         <div className="col-12">
           <h2 className="fw-bold text-white">Teacher Dashboard</h2>
@@ -167,6 +154,21 @@ const DashboardHome = () => {
                       </div>
                     </div>
                   </Link>
+                </div>
+                <div className="col-md-3 mb-3">
+                  <button
+                    onClick={handleLogout}
+                    className="text-decoration-none border-0 bg-transparent w-100 p-0"
+                    style={{ cursor: 'pointer' }}
+                  >
+                    <div className="card text-center h-100">
+                      <div className="card-body">
+                        <FaSignOutAlt className="text-danger mb-3" size={40} />
+                        <h6 className="card-title">Logout</h6>
+                        <p className="card-text text-muted">Sign out of your account</p>
+                      </div>
+                    </div>
+                  </button>
                 </div>
               </div>
             </div>
