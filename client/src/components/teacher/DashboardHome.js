@@ -1,9 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
+import { useAuth } from '../../contexts/AuthContext';
 import axios from 'axios';
-import { FaQrcode, FaUsers, FaChartBar, FaCalendarAlt } from 'react-icons/fa';
+import { FaQrcode, FaUsers, FaChartBar, FaCalendarAlt, FaSignOutAlt } from 'react-icons/fa';
 
 const DashboardHome = () => {
+  const { logout } = useAuth();
+  const navigate = useNavigate();
   const [stats, setStats] = useState({
     todayAttendance: 0,
     activeQRCodes: 0,
@@ -11,6 +14,11 @@ const DashboardHome = () => {
     recentActivity: []
   });
   const [loading, setLoading] = useState(true);
+
+  const handleLogout = () => {
+    logout();
+    navigate('/login');
+  };
 
   useEffect(() => {
     fetchDashboardStats();
@@ -57,6 +65,19 @@ const DashboardHome = () => {
 
   return (
     <div>
+      {/* Mobile Logout Button */}
+      <div className="row mb-3 d-lg-none">
+        <div className="col-12">
+          <button
+            className="btn btn-danger w-100"
+            onClick={handleLogout}
+          >
+            <FaSignOutAlt className="me-2" />
+            Logout
+          </button>
+        </div>
+      </div>
+
       <div className="row mb-4">
         <div className="col-12">
           <h2 className="fw-bold text-white">Teacher Dashboard</h2>

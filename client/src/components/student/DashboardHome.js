@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import axios from 'axios';
-import { FaQrcode, FaCalendarAlt, FaUser } from 'react-icons/fa';
+import { FaQrcode, FaCalendarAlt, FaUser, FaSignOutAlt } from 'react-icons/fa';
 
 const DashboardHome = () => {
-  const { user } = useAuth();
+  const { user, logout } = useAuth();
+  const navigate = useNavigate();
   const [stats, setStats] = useState({
     totalAttendance: 0,
     presentDays: 0,
@@ -13,6 +14,11 @@ const DashboardHome = () => {
     attendanceRate: 0
   });
   const [loading, setLoading] = useState(true);
+
+  const handleLogout = () => {
+    logout();
+    navigate('/login');
+  };
 
   useEffect(() => {
     fetchStudentStats();
@@ -60,6 +66,19 @@ const DashboardHome = () => {
 
   return (
     <div>
+      {/* Mobile Logout Button */}
+      <div className="row mb-3 d-lg-none">
+        <div className="col-12">
+          <button
+            className="btn btn-danger w-100"
+            onClick={handleLogout}
+          >
+            <FaSignOutAlt className="me-2" />
+            Logout
+          </button>
+        </div>
+      </div>
+
       <div className="row mb-4">
         <div className="col-12">
           <h2 className="fw-bold text-white">Student Dashboard</h2>
