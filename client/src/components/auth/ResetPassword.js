@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import axios from 'axios';
-import { toast } from 'react-toastify';
 import { FaLock, FaEye, FaEyeSlash, FaCheck } from 'react-icons/fa';
 
 const ResetPassword = () => {
@@ -31,7 +30,8 @@ const ResetPassword = () => {
       }
     } catch (error) {
       setTokenValid(false);
-      toast.error('Invalid or expired reset link');
+      console.error('Invalid or expired reset link');
+      alert('Invalid or expired reset link');
     } finally {
       setValidating(false);
     }
@@ -50,14 +50,16 @@ const ResetPassword = () => {
 
     // Validate passwords match
     if (formData.password !== formData.confirmPassword) {
-      toast.error('Passwords do not match');
+      console.error('Passwords do not match');
+      alert('Passwords do not match');
       setLoading(false);
       return;
     }
 
     // Validate password length
     if (formData.password.length < 6) {
-      toast.error('Password must be at least 6 characters long');
+      console.error('Password must be at least 6 characters long');
+      alert('Password must be at least 6 characters long');
       setLoading(false);
       return;
     }
@@ -69,14 +71,15 @@ const ResetPassword = () => {
 
       if (response.data.success) {
         setSuccess(true);
-        toast.success('Password reset successfully!');
+        console.log('Password reset successfully!');
         setTimeout(() => {
           navigate('/login');
         }, 2000);
       }
     } catch (error) {
       const message = error.response?.data?.message || 'Failed to reset password';
-      toast.error(message);
+      console.error(message);
+      alert(message);
     } finally {
       setLoading(false);
     }

@@ -1,7 +1,6 @@
 import React, { createContext, useContext, useReducer, useEffect } from 'react';
 import axios from 'axios';
 import { API_BASE_URL } from '../config/api';
-import { toast } from 'react-toastify';
 
 const AuthContext = createContext();
 
@@ -146,7 +145,7 @@ export const AuthProvider = ({ children }) => {
       });
       
       console.log('AuthContext - Login successful, user data:', userData);
-      toast.success('Login successful!');
+      console.log('Login successful!');
       return { success: true, user: userData };
     } catch (error) {
       console.error('AuthContext - Login failed:', error);
@@ -155,7 +154,8 @@ export const AuthProvider = ({ children }) => {
         type: 'LOGIN_FAILURE',
         payload: message
       });
-      toast.error(message);
+      console.error(message);
+      alert(message);
       return { success: false, error: message };
     }
   };
@@ -176,7 +176,7 @@ export const AuthProvider = ({ children }) => {
         payload: response.data
       });
       
-      toast.success('Registration successful!');
+      console.log('Registration successful!');
       return { success: true };
     } catch (error) {
       const message = error.response?.data?.message || 'Registration failed';
@@ -184,7 +184,8 @@ export const AuthProvider = ({ children }) => {
         type: 'LOGIN_FAILURE',
         payload: message
       });
-      toast.error(message);
+      console.error(message);
+      alert(message);
       return { success: false, error: message };
     }
   };
@@ -194,7 +195,7 @@ export const AuthProvider = ({ children }) => {
     delete axios.defaults.headers.common['Authorization'];
     localStorage.removeItem('token');
     dispatch({ type: 'LOGOUT' });
-    toast.info('Logged out successfully');
+    console.log('Logged out successfully');
   };
 
   const clearAuthState = () => {
@@ -217,11 +218,12 @@ export const AuthProvider = ({ children }) => {
         type: 'UPDATE_USER',
         payload: response.data.data
       });
-      toast.success('Profile updated successfully!');
+      console.log('Profile updated successfully!');
       return { success: true };
     } catch (error) {
       const message = error.response?.data?.message || 'Profile update failed';
-      toast.error(message);
+      console.error(message);
+      alert(message);
       return { success: false, error: message };
     }
   };
@@ -232,11 +234,12 @@ export const AuthProvider = ({ children }) => {
         currentPassword,
         newPassword
       });
-      toast.success('Password changed successfully!');
+      console.log('Password changed successfully!');
       return { success: true };
     } catch (error) {
       const message = error.response?.data?.message || 'Password change failed';
-      toast.error(message);
+      console.error(message);
+      alert(message);
       return { success: false, error: message };
     }
   };

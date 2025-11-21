@@ -1,6 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
-import { toast } from 'react-toastify';
 import { FaCalendarAlt, FaTrash, FaDownload, FaEye } from 'react-icons/fa';
 
 const AttendanceView = () => {
@@ -17,7 +16,8 @@ const AttendanceView = () => {
       setStats(response.data.data.stats);
     } catch (error) {
       console.error('Error fetching attendance:', error);
-      toast.error('Failed to fetch attendance data');
+      console.error('Failed to fetch attendance data');
+      alert('Failed to fetch attendance data');
     } finally {
       setLoading(false);
     }
@@ -31,11 +31,12 @@ const AttendanceView = () => {
     if (window.confirm('Are you sure you want to delete this attendance record?')) {
       try {
         await axios.delete(`/api/attendance/${id}`);
-        toast.success('Attendance record deleted successfully');
+        console.log('Attendance record deleted successfully');
         fetchAttendance();
       } catch (error) {
         console.error('Error deleting attendance:', error);
-        toast.error('Failed to delete attendance record');
+        console.error('Failed to delete attendance record');
+        alert('Failed to delete attendance record');
       }
     }
   };
@@ -129,7 +130,8 @@ const AttendanceView = () => {
                     className="btn btn-outline-success btn-sm"
                     onClick={() => {
                       // Export functionality would go here
-                      toast.info('Export feature coming soon!');
+                      console.log('Export feature coming soon!');
+                      alert('Export feature coming soon!');
                     }}
                   >
                     <FaDownload className="me-1" />

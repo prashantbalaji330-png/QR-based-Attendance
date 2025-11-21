@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import axios from 'axios';
-import { toast } from 'react-toastify';
 import { FaEnvelope, FaArrowLeft } from 'react-icons/fa';
 
 const ForgotPassword = () => {
@@ -18,11 +17,12 @@ const ForgotPassword = () => {
       
       if (response.data.success) {
         setEmailSent(true);
-        toast.success('Password reset email sent successfully!');
+        console.log('Password reset email sent successfully!');
       }
     } catch (error) {
       const message = error.response?.data?.message || 'Failed to send reset email';
-      toast.error(message);
+      console.error(message);
+      alert(message);
     } finally {
       setLoading(false);
     }

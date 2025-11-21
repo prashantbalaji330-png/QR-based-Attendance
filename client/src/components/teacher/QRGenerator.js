@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import axios from 'axios';
-import { toast } from 'react-toastify';
 import { FaQrcode, FaCopy, FaDownload, FaClock } from 'react-icons/fa';
 import { useAuth } from '../../contexts/AuthContext';
 
@@ -28,14 +27,16 @@ const QRGenerator = () => {
 
     // Check authentication
     if (!isAuthenticated || !token) {
-      toast.error('You must be logged in to generate QR codes');
+      console.error('You must be logged in to generate QR codes');
+      alert('You must be logged in to generate QR codes');
       setLoading(false);
       return;
     }
 
     // Check if user is a teacher
     if (user?.role !== 'teacher') {
-      toast.error('Only teachers can generate QR codes');
+      console.error('Only teachers can generate QR codes');
+      alert('Only teachers can generate QR codes');
       setLoading(false);
       return;
     }
@@ -47,11 +48,12 @@ const QRGenerator = () => {
     try {
       const response = await axios.post('/api/qr/generate', formData);
       setGeneratedQR(response.data.data);
-      toast.success('QR Code generated successfully!');
+      console.log('QR Code generated successfully!');
     } catch (error) {
       console.error('QR generation error:', error);
       const message = error.response?.data?.message || 'Failed to generate QR code';
-      toast.error(message);
+      console.error(message);
+      alert(message);
     } finally {
       setLoading(false);
     }
@@ -60,7 +62,7 @@ const QRGenerator = () => {
   const copyToClipboard = () => {
     if (generatedQR) {
       navigator.clipboard.writeText(generatedQR.code);
-      toast.success('QR Code copied to clipboard!');
+      console.log('QR Code copied to clipboard!');
     }
   };
 

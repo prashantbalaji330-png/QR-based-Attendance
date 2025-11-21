@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Html5Qrcode } from 'html5-qrcode';
 import axios from 'axios';
-import { toast } from 'react-toastify';
 import { FaQrcode, FaCheck, FaTimes, FaCamera, FaArrowLeft } from 'react-icons/fa';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
@@ -53,7 +52,8 @@ const QRScanner = () => {
     ];
 
     if (fatalHints.some(h => errString.includes(h))) {
-      toast.error('Camera error: ' + (errString || 'permission or device issue'));
+      console.error('Camera error: ' + (errString || 'permission or device issue'));
+      alert('Camera error: ' + (errString || 'permission or device issue'));
       setScanning(false);
       try {
         scannerRef.current?.stop();
@@ -120,7 +120,7 @@ const QRScanner = () => {
         );
 
         if (attendanceResponse.data.success) {
-          toast.success(attendanceResponse.data.message);
+          console.log(attendanceResponse.data.message);
           setResult({
             success: true,
             message: attendanceResponse.data.message,
@@ -130,7 +130,8 @@ const QRScanner = () => {
       }
     } catch (error) {
       const message = error.response?.data?.message || 'Failed to mark attendance';
-      toast.error(message);
+      console.error(message);
+      alert(message);
       setResult({
         success: false,
         message: message
@@ -190,7 +191,8 @@ const QRScanner = () => {
         (await attemptStart({ facingMode: 'user' }));
 
       if (!started) {
-        toast.error('Unable to access camera');
+        console.error('Unable to access camera');
+        alert('Unable to access camera');
         setScanning(false);
       }
     } finally {
