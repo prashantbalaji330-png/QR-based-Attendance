@@ -60,7 +60,7 @@ const DashboardHome = () => {
       <div className="row mb-4">
         <div className="col-12">
           <h2 className="fw-bold text-white">Teacher Dashboard</h2>
-          <p className="text-white-50">Welcome back! Here's your overview for today.</p>
+          <p className="text-white-50">Welcome back! </p>
         </div>
       </div>
 

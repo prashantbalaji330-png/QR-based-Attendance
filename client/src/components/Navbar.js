@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { FaUser, FaSignOutAlt, FaCog } from 'react-icons/fa';
@@ -7,6 +7,7 @@ const Navbar = () => {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
   const [showDropdown, setShowDropdown] = useState(false);
+  const dropdownRef = useRef(null);
 
   const handleLogout = () => {
     logout();
@@ -16,6 +17,25 @@ const Navbar = () => {
   const getDashboardLink = () => {
     return user?.role === 'teacher' ? '/teacher' : '/student';
   };
+
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setShowDropdown(false);
+      }
+    };
+
+    if (showDropdown) {
+      document.addEventListener('mousedown', handleClickOutside);
+      document.addEventListener('touchstart', handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener('touchstart', handleClickOutside);
+    };
+  }, [showDropdown]);
 
   return (
     <nav className="navbar navbar-expand-lg navbar-light">
@@ -29,6 +49,9 @@ const Navbar = () => {
           type="button"
           data-bs-toggle="collapse"
           data-bs-target="#navbarNav"
+          aria-controls="navbarNav"
+          aria-expanded="false"
+          aria-label="Toggle navigation"
         >
           <span className="navbar-toggler-icon"></span>
         </button>
@@ -71,17 +94,35 @@ const Navbar = () => {
           </ul>
 
           <div className="navbar-nav">
-            <div className="nav-item dropdown">
+            {/* Mobile: Direct logout button */}
+            <div className="d-lg-none nav-item">
+              <button
+                className="btn btn-outline-danger nav-link w-100 text-start"
+                onClick={handleLogout}
+                style={{ border: 'none', padding: '0.5rem 1rem' }}
+              >
+                <FaSignOutAlt className="me-2" />
+                Logout
+              </button>
+            </div>
+
+            {/* Desktop: Dropdown menu */}
+            <div className="d-none d-lg-block nav-item dropdown" ref={dropdownRef}>
               <button
                 className="btn btn-link nav-link dropdown-toggle"
                 onClick={() => setShowDropdown(!showDropdown)}
+                style={{ textDecoration: 'none' }}
               >
                 <FaUser className="me-1" />
                 {user?.name}
               </button>
               {showDropdown && (
-                <div className="dropdown-menu show">
-                  <Link className="dropdown-item" to="/profile">
+                <div className="dropdown-menu show dropdown-menu-end" style={{ position: 'absolute', right: 0 }}>
+                  <Link 
+                    className="dropdown-item" 
+                    to="/profile"
+                    onClick={() => setShowDropdown(false)}
+                  >
                     <FaCog className="me-2" />
                     Profile
                   </Link>
@@ -94,6 +135,18 @@ const Navbar = () => {
                   </button>
                 </div>
               )}
+            </div>
+
+            {/* Mobile: Profile link */}
+            <div className="d-lg-none nav-item">
+              <Link 
+                className="nav-link" 
+                to="/profile"
+                style={{ padding: '0.5rem 1rem' }}
+              >
+                <FaCog className="me-2" />
+                Profile
+              </Link>
             </div>
           </div>
         </div>
